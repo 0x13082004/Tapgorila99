@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Bandor Tap</title>
+<meta name="base:app_id" content="698f4a9e7ca07f5750bbd85d" />
+  <!--
+    NOTE: Keep these URLs in sync with your deployed domain.
+    The previous build hard-coded a different domain, which caused the JS bundle not to load
+    and made the UI feel like "touch doesn't work".
+  -->
+  <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://tapgorila1.vercel.app/assets/embed-3x2.png","button":{"title":"Play","action":{"type":"launch_frame","name":"Bandor Pata Tapper","url":"https://tapgorila1.vercel.app/","splashImageUrl":"https://tapgorila1.vercel.app/assets/icon.png","splashBackgroundColor":"#ffffff"}}}' />
+  <meta name="fc:frame" content='{"version":"1","imageUrl":"https://tapgorila1.vercel.app/assets/embed-3x2.png","button":{"title":"Play","action":{"type":"launch_frame","name":"Bandor Pata Tapper","url":"https://tapgorila1.vercel.app/","splashImageUrl":"https://tapgorila1.vercel.app/assets/icon.png","splashBackgroundColor":"#ffffff"}}}' />
+
+  <link rel="icon" href="./assets/icon.png" />
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --card: rgba(255,255,255,0.94);
+      --shadow: 0 10px 30px rgba(0,0,0,0.10);
+      --radius: 18px;
+    }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); }
+    body { overflow: hidden; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+    header {
+      padding: 14px 16px 10px;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .pill {
+      background: rgba(0,0,0,0.06);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      display:flex; gap:10px; align-items:center;
+    }
+    .muted { color: var(--muted); font-weight: 700; }
+    main { flex: 1; position: relative; display:flex; align-items:center; justify-content:center; }
+    #tapArea {
+      width: min(560px, 92vw);
+      height: min(720px, 70vh);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.00));
+      box-shadow: var(--shadow);
+      display:flex; align-items:center; justify-content:center;
+      position: relative;
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+    #bandor {
+      width: min(480px, 82vw);
+      max-height: 60vh;
+      object-fit: contain;
+      transform: translateY(6px);
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.16));
+    }
+    #hint {
+      position:absolute; top: 14px; left: 14px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .floatPlus {
+      position: absolute;
+      font-weight: 900;
+      font-size: 22px;
+      color: var(--fg);
+      transform: translate(-50%, -50%);
+      pointer-events:none;
+      animation: floatUp 650ms ease-out forwards;
+      background: rgba(255,255,255,0.85);
+      padding: 6px 10px;
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+    }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.96); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%,-120%) scale(1.06); }
+    }
+
+    /* Bottom nav */
+    nav {
+      padding: 10px 12px 14px;
+      display:flex; gap:10px;
+      justify-content:space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.98) 42%);
+    }
+    .navBtn {
+      flex:1;
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 10px;
+      font-weight: 900;
+      font-size: 16px;
+      background: rgba(0,0,0,0.06);
+      color: var(--fg);
+    }
+    .navBtn.primary {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    /* Panels */
+    .panel {
+      position:absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.98);
+      padding: 18px 16px 86px;
+      display:none;
+    }
+    .panel.show { display:block; }
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin: 12px 0;
+    }
+    .h1 { font-size: 22px; font-weight: 1000; margin: 0 0 6px; }
+    .p { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.35; }
+    .row { display:flex; gap: 10px; align-items:center; justify-content:space-between; }
+    .cta {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-weight: 1000;
+      background: #111111;
+      color: #ffffff;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .cta:disabled {
+      opacity: 0.45;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%);
+      background: rgba(17,17,17,0.92);
+      color: white;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity 160ms ease;
+      max-width: 92vw;
+      text-align: center;
+    }
+    #toast.show { opacity: 1; }
+
+    /* Bottom-sheet */
+    #sheetBackdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.25);
+      display:none;
+    }
+    #sheetBackdrop.show { display:block; }
+    #sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.98);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      box-shadow: 0 -18px 40px rgba(0,0,0,0.18);
+      padding: 12px 14px 18px;
+      transform: translateY(110%);
+      transition: transform 220ms ease;
+    }
+    #sheetBackdrop.show #sheet { transform: translateY(0); }
+    .sheetHeader { display:flex; align-items:center; justify-content:space-between; }
+    .sheetTitle { font-weight: 1000; font-size: 18px; }
+    .xBtn {
+      border: 0; background: rgba(0,0,0,0.06);
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      font-weight: 1000;
+    }
+    .presetRow { display:flex; gap: 10px; margin-top: 12px; }
+    .preset {
+      flex:1;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 10px;
+      background: rgba(0,0,0,0.06);
+      font-weight: 1000;
+    }
+    .input {
+      width: 100%;
+      margin-top: 12px;
+      border-radius: 14px;
+      padding: 14px 12px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 16px;
+      font-weight: 900;
+      outline: none;
+      background: white;
+    }
+    #tipCta { margin-top: 12px; }
+    .small { font-size: 12px; color: var(--muted); margin-top: 10px; line-height:1.3; }
+    #prepAnim {
+      height: 6px;
+      width: 100%;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      overflow:hidden;
+      display:none;
+      margin-top: 10px;
+    }
+    #prepAnim.show { display:block; }
+    #prepAnim > div {
+      height: 100%;
+      width: 30%;
+      background: rgba(0,0,0,0.35);
+      border-radius: 999px;
+      animation: prep 1.2s ease-in-out infinite;
+    }
+    @keyframes prep {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(360%); }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <div class="pill">
+        <span>🍃</span>
+        <span id="pataText">Pata: 0</span>
+      </div>
+      <div class="pill">
+        <span class="muted">⚡</span>
+        <span id="energyText">0/0</span>
+        <span class="muted">🔥</span>
+        <span id="streakText">0</span>
+      </div>
+    </header>
+
+    <main>
+      <div id="tapArea" aria-label="Tap area">
+        <div id="hint">Tap</div>
+        <img id="bandor" src="./assets/bandor.png" alt="Bandor" />
+      </div>
+
+      <section id="earnPanel" class="panel" aria-label="Earn panel">
+        <div class="h1">Earn</div>
+        <div class="card">
+          <div class="row">
+            <div>
+              <div class="h1" style="font-size:18px;margin:0 0 4px;">Boost Pata</div>
+              <p class="p">Send <b>1 USDC</b> on Base Mainnet to instantly get <b>+10,000</b> Pata and refill energy.</p>
+            </div>
+          </div>
+          <button id="earnBtn" class="cta">Earn with 1 USDC</button>
+          <div class="small">This triggers an onchain USDC transfer.</div>
+        </div>
+
+        <div class="card">
+          <div class="h1" style="font-size:18px;margin:0 0 4px;">Daily streak</div>
+          <p class="p">Play at least once per day to keep the streak going.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav>
+      <button id="navGame" class="navBtn primary">Game</button>
+      <button id="navEarn" class="navBtn">Earn</button>
+      <button id="navTip" class="navBtn">Tip</button>
+    </nav>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Tip bottom-sheet modal -->
+  <div id="sheetBackdrop" aria-hidden="true">
+    <div id="sheet" role="dialog" aria-modal="true" aria-label="Tip">
+      <div class="sheetHeader">
+        <div class="sheetTitle">Tip with USDC</div>
+        <button id="closeSheet" class="xBtn">✕</button>
+      </div>
+
+      <div class="presetRow">
+        <button class="preset" data-usd="1">$1</button>
+        <button class="preset" data-usd="5">$5</button>
+        <button class="preset" data-usd="10">$10</button>
+        <button class="preset" data-usd="25">$25</button>
+      </div>
+
+      <input id="customUsd" class="input" inputmode="decimal" placeholder="Custom amount (USD)" />
+
+      <div id="prepAnim"><div></div></div>
+
+      <button id="tipCta" class="cta">Send USDC</button>
+      <div class="small">
+        Network: Base Mainnet • Token: USDC<br />
+        If you’re not on Base, we’ll attempt to switch networks automatically.
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

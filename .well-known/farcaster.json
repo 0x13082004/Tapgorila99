@@ -1,0 +1,28 @@
+{
+  "accountAssociation": {
+    "header": " ",
+    "payload": " ",
+    "signature": " "
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Bandor Tapper",
+    "description": "Tap Bandor to earn pata and it's a funny game",
+    "iconUrl": "https://tapgorila1.vercel.app/assets/icon.png",
+    "imageUrl": "https://tapgorila1.vercel.app/assets/embed-3x2.png",
+    "homeUrl": "https://tapgorila1.vercel.app/",
+    "canonicalDomain": "tapgorila1.vercel.app",
+    "requiredChains": [
+      "eip155:8453"
+    ],
+    "tags": [
+      "game",
+      "tap",
+      "base",
+      "miniapp"
+    ],
+    "requiredCapabilities": [
+      "actions.ready"
+    ]
+  }
+}
