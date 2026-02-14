@@ -1,29 +1,46 @@
-﻿{
+
+{
   "accountAssociation": {
     "header": " ",
     "payload": " ",
-    "signature": " "
-  },
-  "miniapp": {
-    "version": "1",
-    "name": "Bandor Tapper",
-    "description": "Tap Bandor to earn pata and it's a funny game",
-    "iconUrl": "https://tapgorila99.vercel.app/assets/icon.png",
-    "imageUrl": "https://tapgorila99.vercel.app/assets/embed-3x2.png",
-    "homeUrl": "https://tapgorila99.vercel.app/",
-    "canonicalDomain": "tapgorila99.vercel.app",
-    "requiredChains": [
-      "eip155:8453"
-    ],
-    "tags": [
-      "game",
-      "tap",
-      "base",
-      "miniapp"
-    ],
-    "requiredCapabilities": [
-      "actions.ready"
-    ]
-  }
+    "signature": " " },
+"miniapp": {
+  "version": "1",
+  "name": "Bandor Tapper",
+  "subtitle": "Tap to earn pata", 
+  "description": "Tap Bandor to earn pata and it's a funny game",
+
+  "iconUrl": "https://tapgorila99.vercel.app/assets/icon.png",
+  "imageUrl": "https://tapgorila99.vercel.app/assets/embed-3x2.png",
+  "homeUrl": "https://tapgorila99.vercel.app/",
+  "canonicalDomain": "tapgorila99.vercel.app",
+
+  "splashImageUrl": "https://tapgorila99.vercel.app/assets/splash-200.png",
+  "splashBackgroundColor": "#000000",
+  "primaryCategory": "games",
+
+  "tags": ["game", "tap", "base", "miniapp"],
+
+  "screenshotUrls": [
+    "https://tapgorila99.vercel.app/assets/screenshots/1.png",
+    "https://tapgorila99.vercel.app/assets/screenshots/2.png",
+    "https://tapgorila99.vercel.app/assets/screenshots/3.png"
+  ],
+
+  "heroImageUrl": "https://tapgorila99.vercel.app/assets/hero-1200x630.png",
+
+  "tagline": "Tap. Earn. Fun.",
+
+  "ogTitle": "Bandor Tapper",
+  "ogDescription": "Tap Bandor, earn pata, and climb the leaderboard!",
+  "ogImageUrl": "https://tapgorila99.vercel.app/assets/og-1200x630.png",
+
+  "noindex": false,
+
+  "webhookUrl": "https://tapgorila99.vercel.app/api/webhook",
+
+  "requiredChains": ["eip155:8453"],
+  "requiredCapabilities": ["actions.ready"]
 }
 
+}
