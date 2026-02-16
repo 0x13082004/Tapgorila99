@@ -1,4 +1,4 @@
-// Bandor Pata Tapper — Farcaster Mini App (production static)
+// Bandor Pata Tapper â€” Farcaster Mini App (production static)
 // IMPORTANT: keep asset/script URLs relative so the app works on any deployed domain.
 
 import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
@@ -52,7 +52,7 @@ function walletSupportsPaymaster(caps, chainIdHex) {
 const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_DECIMALS = 6;
 
-// Base Mainnet (8453 / 0x2105) — this is where your contract lives.
+// Base Mainnet (8453 / 0x2105) â€” this is where your contract lives.
 const BASE_MAINNET_CHAIN_ID = "0x2105";
 
 // Your onchain contract to hit on every tap.
@@ -79,7 +79,7 @@ function isHexAddress(addr) {
 }
 
 function isReadyToSend() {
-  // We never want to crash or block the UI — just surface clear errors.
+  // We never want to crash or block the UI â€” just surface clear errors.
   if (!isHexAddress(TAP_CONTRACT)) return false;
   return true;
 }
@@ -136,9 +136,9 @@ const store = {
 
 // ---------- Game ----------
 const MILESTONES = [
-  { at: 500, label: "Nice! 🥳" },
-  { at: 1000, label: "Big Pata Energy 😎" },
-  { at: 2500, label: "Leaf Legend 🍃👑" },
+  { at: 500, label: "Nice! ðŸ¥³" },
+  { at: 1000, label: "Big Pata Energy ðŸ˜Ž" },
+  { at: 2500, label: "Leaf Legend ðŸƒðŸ‘‘" },
 ];
 
 let pata = store.getPata();
@@ -532,15 +532,15 @@ async function processTapQueue() {
   try {
     while (tapQueue > 0) {
       const nextCounter = (Number(localStorage.getItem("tapCounter") || "0") || 0) + 1;
-      setTapHint(`Confirm in wallet… (${tapQueue} queued)`);
+      setTapHint(`Confirm in walletâ€¦ (${tapQueue} queued)`);
       try {
         const res = await walletSendCallsTap({ counter: nextCounter });
         // wallet_sendCalls MUST NOT await finalization (EIP-5792), so we must
         // wait for wallet_getCallsStatus to confirm inclusion before we update local state.
         const bundleId = res?.id;
         if (bundleId) {
-          setTapHint("Pending onchain…");
-          await waitForCallBundleFinal(provider, bundleId);
+          setTapHint("Pending onchainâ€¦");
+          await waitForCallBundleFinal(await getProvider(), bundleId);
         } else {
           // If wallet didn't return an id, wait briefly to avoid rapid nonce conflicts.
           await sleep(1200);
@@ -646,9 +646,9 @@ function resetTipUi() {
 async function runTipFlow(usdString) {
   tipState.usd = usdString;
 
-  // Pre-transaction UX: animate 1–1.5s BEFORE wallet opens
+  // Pre-transaction UX: animate 1â€“1.5s BEFORE wallet opens
   tipState.status = "preparing";
-  setTipCta("Preparing tip…", true);
+  setTipCta("Preparing tipâ€¦", true);
   setPrepAnim(true);
   await new Promise((r) => setTimeout(r, 1200));
 
@@ -659,7 +659,7 @@ async function runTipFlow(usdString) {
     const res = await walletSendCallsUsdc({ usdString, recipient: TIP_RECIPIENT });
 
     tipState.status = "sending";
-    setTipCta("Sending…", true);
+    setTipCta("Sendingâ€¦", true);
 
     // If wallet returns immediately, we still show a short sending state.
     await new Promise((r) => setTimeout(r, 900));
@@ -668,7 +668,7 @@ async function runTipFlow(usdString) {
     setPrepAnim(false);
     setTipCta("Send again", false);
 
-    toast("Tip sent ✅");
+    toast("Tip sent âœ…");
     return res;
   } catch (e) {
     // Handle user rejection / errors gracefully
@@ -688,14 +688,14 @@ async function runTipFlow(usdString) {
 // ---------- Earn flow ----------
 async function runEarnFlow() {
   // Fixed 1 USDC
-  setEarnButtonState("Preparing…", true);
+  setEarnButtonState("Preparingâ€¦", true);
   // same pre-transaction animation
   await new Promise((r) => setTimeout(r, 1200));
 
   try {
     setEarnButtonState("Confirm in wallet", true);
     await walletSendCallsUsdc({ usdString: "1", recipient: TIP_RECIPIENT });
-    setEarnButtonState("Earning…", true);
+    setEarnButtonState("Earningâ€¦", true);
     await new Promise((r) => setTimeout(r, 900));
 
     // reward
@@ -705,7 +705,7 @@ async function runEarnFlow() {
     store.setEnergy(energy);
     updateHud();
 
-    toast("Earned +10,000 Pata ✅");
+    toast("Earned +10,000 Pata âœ…");
     setEarnButtonState("Earn with 1 USDC", false);
   } catch (e) {
     setEarnButtonState("Earn with 1 USDC", false);
